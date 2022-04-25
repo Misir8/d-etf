@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,10 +13,10 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
 
-    private jwtService:JwtService
+    private jwtService: JwtService,
   ) {}
   //sign up
-  async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async signUp(authCredentialsDto: AuthCredentialsDto) {
     const { username, password } = authCredentialsDto;
     const user = new User();
     user.username = username;
@@ -27,9 +24,9 @@ export class AuthService {
     user.password = await this.hashPassword(password, user.salt);
     try {
       await this.userRepo.save(user);
+      return { message: 'User successfully added' };
     } catch (error) {
       console.log(error);
-
     }
   }
   // validate password
@@ -37,7 +34,7 @@ export class AuthService {
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<string> {
     const { username, password } = authCredentialsDto;
-    const user = await this.userRepo.findOne(username );
+    const user = await this.userRepo.findOne({ where: { username } });
     if (user && (await user.validatePassword(password))) {
       return user.username;
     } else {
@@ -50,15 +47,17 @@ export class AuthService {
   }
 
   async findOne(username: string) {
-    return await this.userRepo.findOne({ username });
+    return await this.userRepo.findOne({ where: { username } });
   }
-  async signIn(authCredentialsDto:AuthCredentialsDto):Promise<{accessToken:string}>{
-    const username= await this.validateUserPassword(authCredentialsDto);
-    if(!username){
-        throw new UnauthorizedException("Invalid credentials");
+  async signIn(
+    authCredentialsDto: AuthCredentialsDto,
+  ): Promise<{ accessToken: string }> {
+    const username = await this.validateUserPassword(authCredentialsDto);
+    if (!username) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    const payload:JwtPayload={username};
-    const accessToken= await this.jwtService.sign(payload);
-    return {accessToken};
-}
+    const payload: JwtPayload = { username };
+    const accessToken = this.jwtService.sign(payload);
+    return { accessToken };
+  }
 }
