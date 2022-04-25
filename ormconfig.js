@@ -5,7 +5,6 @@ module.exports = {
   database: process.env.DB_SCHEMA,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  logging: process.env.NODE_ENV === 'development',
   migrationsTableName: 'migrations',
   migrations: [__dirname + '/dist/migration/**/*.{js,ts}'],
   cli: {

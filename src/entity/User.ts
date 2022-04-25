@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { IsEmail } from 'class-validator';
 
 @Entity({
   name: 'users',
@@ -10,6 +11,12 @@ export class User {
 
   @Column()
   username: string;
+
+  @IsEmail()
+  @Column({
+    nullable: true,
+  })
+  email: string;
 
   @Column()
   password: string;

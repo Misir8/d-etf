@@ -3,9 +3,10 @@ import { Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { AuthSignUpDto } from './dto/auth-sign-up.dto';
 import { JwtPayload } from './jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { AuthSignInDto } from './dto/auth-sign-in.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,12 +17,13 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
   //sign up
-  async signUp(authCredentialsDto: AuthCredentialsDto) {
-    const { username, password } = authCredentialsDto;
+  async signUp(authSignUpDto: AuthSignUpDto) {
+    const { username, password, email } = authSignUpDto;
     const user = new User();
     user.username = username;
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
+    user.email = email;
     try {
       await this.userRepo.save(user);
       return { message: 'User successfully added' };
@@ -30,13 +32,16 @@ export class AuthService {
     }
   }
   // validate password
-  async validateUserPassword(
-    authCredentialsDto: AuthCredentialsDto,
-  ): Promise<string> {
-    const { username, password } = authCredentialsDto;
-    const user = await this.userRepo.findOne({ where: { username } });
-    if (user && (await user.validatePassword(password))) {
-      return user.username;
+  async validateUserPassword(authSignInDto: AuthSignInDto): Promise<string> {
+    const { username, password, email } = authSignInDto;
+    if (username || email) {
+      const user = await this.userRepo
+        .createQueryBuilder('user')
+        .where(`user.username = '${username}' OR user.email = '${email}'`)
+        .getOne();
+      if (user && (await user.validatePassword(password))) {
+        return user.username;
+      }
     } else {
       return null;
     }
@@ -49,10 +54,8 @@ export class AuthService {
   async findOne(username: string) {
     return await this.userRepo.findOne({ where: { username } });
   }
-  async signIn(
-    authCredentialsDto: AuthCredentialsDto,
-  ): Promise<{ accessToken: string }> {
-    const username = await this.validateUserPassword(authCredentialsDto);
+  async signIn(authSignInDto: AuthSignInDto): Promise<{ accessToken: string }> {
+    const username = await this.validateUserPassword(authSignInDto);
     if (!username) {
       throw new UnauthorizedException('Invalid credentials');
     }
