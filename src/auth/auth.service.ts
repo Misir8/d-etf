@@ -17,6 +17,7 @@ import { PasswordToken } from '../entity/PasswordToken';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CheckTokenDto } from './dto/check-token.dto';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
+import { GetUsersDto } from './dto/Get-Users.dto';
 
 @Injectable()
 export class AuthService {
@@ -187,5 +188,21 @@ export class AuthService {
     user.password = await this.hashPassword(newPassword, user.salt);
     await this.userRepo.save(user);
     return { message: `New password successfully set` };
+  }
+
+  async getUsers(getUsersDto: GetUsersDto) {
+    let { limit, offset } = getUsersDto;
+
+    offset = offset ? offset : 0;
+    limit = limit ? limit : 25;
+
+    const users = await this.userRepo
+      .createQueryBuilder('user')
+      .select(['user.id', 'user.username', 'user.phoneNumber'])
+      .limit(limit)
+      .skip(offset)
+      .getMany();
+
+    return users;
   }
 }

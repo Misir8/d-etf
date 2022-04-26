@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UseGuards,
   ValidationPipe,
@@ -11,6 +12,7 @@ import { GetUser } from './get-user.decorator';
 import { AuthSignInDto } from './dto/auth-sign-in.dto';
 import { CheckTokenDto } from './dto/check-token.dto';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
+import { GetUsersDto } from './dto/Get-Users.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -43,5 +45,10 @@ export class AuthController {
   @Post('/setNewPassword')
   setNewPassword(@Body() setNewPasswordDto: SetNewPasswordDto) {
     return this.authService.setPassword(setNewPasswordDto);
+  }
+
+  @Get('/users')
+  getUsers(@Body() getUsersDto: GetUsersDto) {
+    return this.authService.getUsers(getUsersDto);
   }
 }
