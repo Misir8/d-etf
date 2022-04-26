@@ -9,6 +9,8 @@ import { AuthService } from './auth.service';
 import { AuthSignUpDto } from './dto/auth-sign-up.dto';
 import { GetUser } from './get-user.decorator';
 import { AuthSignInDto } from './dto/auth-sign-in.dto';
+import { CheckTokenDto } from './dto/check-token.dto';
+import { SetNewPasswordDto } from './dto/set-new-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,5 +28,20 @@ export class AuthController {
     @Body(ValidationPipe) authSignInDto: AuthSignInDto,
   ): Promise<{ accessToken: string }> {
     return this.authService.signIn(authSignInDto);
+  }
+
+  @Post('/reset')
+  resetPassword(@Body('email') email: string) {
+    return this.authService.sendEmailForgotPassword(email);
+  }
+
+  @Post('/checkToken')
+  checkToken(@Body() checkTokenDto: CheckTokenDto) {
+    return this.authService.checkToken(checkTokenDto);
+  }
+
+  @Post('/setNewPassword')
+  setNewPassword(@Body() setNewPasswordDto: SetNewPasswordDto) {
+    return this.authService.setPassword(setNewPasswordDto);
   }
 }
