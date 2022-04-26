@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,8 +27,8 @@ export class AuthService {
       .createQueryBuilder('user')
       .where(`user.username = '${username}'`)
       .getOne();
-    if (dbUser){
-      throw  new BadRequestException(`User with ${username} already exist`);
+    if (dbUser) {
+      throw new BadRequestException(`User with ${username} already exist`);
     }
     const user = new User();
     user.username = username;
