@@ -17,7 +17,6 @@ export class AuthController {
   @Post('/signUp')
   @UseGuards()
   signUp(@GetUser() user, @Body(ValidationPipe) authSignUpDto: AuthSignUpDto) {
-    console.log(user);
     return this.authService.signUp(authSignUpDto);
   }
 

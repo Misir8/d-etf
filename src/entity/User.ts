@@ -12,6 +12,9 @@ export class User {
   @Column()
   username: string;
 
+  @Column()
+  phoneNumber: string;
+
   @IsEmail()
   @Column({
     nullable: true,

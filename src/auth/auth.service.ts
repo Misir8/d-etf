@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,12 +18,20 @@ export class AuthService {
   ) {}
   //sign up
   async signUp(authSignUpDto: AuthSignUpDto) {
-    const { username, password, email } = authSignUpDto;
+    const { username, password, email, phoneNumber } = authSignUpDto;
+    const dbUser = await this.userRepo
+      .createQueryBuilder('user')
+      .where(`user.username = '${username}'`)
+      .getOne();
+    if (dbUser){
+      throw  new BadRequestException(`User with ${username} already exist`);
+    }
     const user = new User();
     user.username = username;
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
     user.email = email;
+    user.phoneNumber = phoneNumber;
     try {
       await this.userRepo.save(user);
       return { message: 'User successfully added' };
