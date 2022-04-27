@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { WyreModule } from './wyre/wyre.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       inject: [ConfigService],
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    WyreModule,
   ],
   controllers: [AppController],
   providers: [AppService],
