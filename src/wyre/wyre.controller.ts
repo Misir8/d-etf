@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { WyreService } from './wyre.service';
 
 @Controller('wyre')
@@ -8,6 +8,18 @@ export class WyreController {
   @Get('/url')
   getUrlReservation() {
     return this.wyreService.sendRequestToWyre();
+  }
+
+  @Post('/webhook')
+  wyreSuccessHandle(@Body() body) {
+    console.log(body, 'query');
+    return body;
+  }
+
+  @Get('/webhook')
+  wyreFailHandle(@Query() query) {
+    console.log(query, 'query');
+    return 'success';
   }
 
   @Get('/transfer')
