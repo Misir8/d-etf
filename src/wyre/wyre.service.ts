@@ -5,11 +5,11 @@ import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class WyreService {
   constructor(private readonly httpService: HttpService) {}
-  private url: URL;
+  private wyrErl: URL;
 
   private get wyreUrl() {
-    this.url = new URL(process.env.WYRE_URL);
-    return this.url;
+    this.wyrErl = new URL(process.env.WYRE_URL);
+    return this.wyrErl;
   }
   public async sendRequestToWyre() {
     const response = await lastValueFrom(
@@ -24,6 +24,16 @@ export class WyreService {
           },
         },
       ),
+    );
+    return response.data;
+  }
+  async getTransfer() {
+    const response = await lastValueFrom(
+      this.httpService.get(process.env.TRANSFER_URL, {
+        headers: {
+          Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+        },
+      }),
     );
     return response.data;
   }

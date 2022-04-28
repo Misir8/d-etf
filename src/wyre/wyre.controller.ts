@@ -5,8 +5,13 @@ import { WyreService } from './wyre.service';
 export class WyreController {
   constructor(private readonly wyreService: WyreService) {}
 
-  @Get('url')
+  @Get('/url')
   getUrlReservation() {
     return this.wyreService.sendRequestToWyre();
+  }
+
+  @Get('/transfer')
+  getTransfer() {
+    return this.wyreService.getTransfer();
   }
 }
