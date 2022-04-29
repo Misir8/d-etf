@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { OrderStatus, OrderWebHook } from './interface';
 
 @Injectable()
 export class WyreService {
@@ -17,44 +18,61 @@ export class WyreService {
       referrerAccountId: process.env.WYRE_ACCOUNT_ID,
       destCurrency: 'USDT',
       dest: process.env.WYRE_ETH_WALLET,
+      lockFields: ['dest', 'destCurrency'],
+      amount: 10,
     };
 
-    const res = await lastValueFrom(
-      this.httpService.post(
-        'https://api.testwyre.com/v2/digitalwallet/webhook',
-        {},
-        {
-          params: {
-            owner: 'account:' + data.referrerAccountId,
-            webhook: process.env.BASE_URL + 'wyre/webhook',
+    try {
+      await lastValueFrom(
+        this.httpService.post(
+          'https://api.testwyre.com/v2/digitalwallet/webhook',
+          {},
+          {
+            params: {
+              owner: 'account:' + data.referrerAccountId,
+              webhook: process.env.BASE_URL + '/wyre/webhook',
+            },
+            headers: {
+              Authorization: `Bearer ${process.env.WYRE_SECRET_KEY}`,
+            },
           },
-          headers: {
-            Authorization: `Bearer ${process.env.WYRE_SECRET_KEY}`,
+        ),
+      );
+
+      const response = await lastValueFrom(
+        this.httpService.post(
+          this.wyreUrl.toString() + 'orders/reserve',
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.WYRE_SECRET_KEY}`,
+            },
           },
-        },
-      ),
-    );
-
-    console.log(res.data);
-
-    const response = await lastValueFrom(
-      this.httpService.post(this.wyreUrl.toString() + 'orders/reserve', data, {
-        headers: {
-          Authorization: `Bearer ${process.env.WYRE_SECRET_KEY}`,
-        },
-      }),
-    );
-    return response.data;
+        ),
+      );
+      return response.data;
+    } catch (e) {
+      console.log(e.message);
+      return { message: e.message, status: 'error' };
+    }
   }
 
-  async getTransfer() {
-    const response = await lastValueFrom(
-      this.httpService.get(process.env.TRANSFER_URL, {
-        headers: {
-          Authorization: `Bearer ${process.env.WYRE_SECRET_KEY}`,
-        },
-      }),
-    );
-    return response.data;
+  async handleWebhook(orderWebHook: OrderWebHook) {
+    if (orderWebHook.orderStatus === OrderStatus.COMPLETE) {
+      const response = await lastValueFrom(
+        this.httpService.get(
+          this.wyreUrl.toString() + 'transfers/' + orderWebHook.transferId,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.WYRE_SECRET_KEY}`,
+            },
+          },
+        ),
+      );
+      //needs crete transfer interface type
+      const transfer = response.data;
+
+      //handle business logic transaction success
+    }
   }
 }
