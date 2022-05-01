@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import { OrderStatus, OrderWebHook } from './interface';
+import { OrderStatus, OrderWebHook, Transfer } from "./interface";
 
 @Injectable()
 export class WyreService {
@@ -70,8 +70,7 @@ export class WyreService {
         ),
       );
       //needs crete transfer interface type
-      const transfer = response.data;
-
+      const transfers:Transfer[] = response.data;
       //handle business logic transaction success
     }
   }

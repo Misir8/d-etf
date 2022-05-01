@@ -14,3 +14,16 @@ export enum OrderStatus {
   COMPLETE = 'COMPLETE',
   PROCESSING = 'PROCESSING',
 }
+export interface Transfer {
+  sourceName: string;
+  destName: string;
+  sourceAmount: number;
+  destAmount: number;
+  status: OrderStatus;
+  message: string;
+  transferId: string;
+  sourceCurrency: string;
+  destCurrency:string;
+  exchangeRate:number;
+  type:String
+}
