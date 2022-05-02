@@ -52,11 +52,11 @@ export class AuthService {
   }
   // validate password
   async validateUserPassword(authSignInDto: AuthSignInDto) {
-    const { username, password, email } = authSignInDto;
-    if (username || email) {
+    const {password, email } = authSignInDto;
+    if (email) {
       const user = await this.userRepo
         .createQueryBuilder('user')
-        .where(`user.username = '${username}' OR user.email = '${email}'`)
+        .where(`user.email = '${email}'`)
         .getOne();
       if (user && (await user.validatePassword(password))) {
         return { username: user.username, id: user.id };
