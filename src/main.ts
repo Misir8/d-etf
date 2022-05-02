@@ -11,9 +11,11 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
   app.enableCors();
+
   const configDocument = new DocumentBuilder()
-    .setTitle('D-etf example')
+    .setTitle('D-etf')
     .setDescription('The d-etf API description')
     .setVersion('1.0')
     .addTag('api')

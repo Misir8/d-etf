@@ -7,7 +7,7 @@ export class WyreController {
 
   @Get('/url')
   getUrlReservation() {
-    return this.wyreService.sendRequestToWyre();
+    return this.wyreService.sendRequestToWyre(7);
   }
 
   @Post('/webhook')

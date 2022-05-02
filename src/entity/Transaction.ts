@@ -24,10 +24,10 @@ export class Transaction {
   })
   type: TransactionType;
 
-  @Column()
+  @Column('decimal', { precision: 5, scale: 2 })
   amountUSDT: number;
 
-  @Column()
+  @Column('decimal', { precision: 5, scale: 2 })
   amountDETF: number;
 
   @CreateDateColumn()

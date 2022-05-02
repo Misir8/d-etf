@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { OrderStatus, OrderWebHook, Transfer } from './interface';
@@ -24,13 +24,21 @@ export class WyreService {
     return this.wyrErl;
   }
 
-  public async sendRequestToWyre() {
+  public async sendRequestToWyre(userId: number) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new HttpException(
+        `User with id ${userId} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const data = {
       referrerAccountId: process.env.WYRE_ACCOUNT_ID,
       destCurrency: 'USDT',
-      dest: process.env.WYRE_ETH_WALLET,
-      lockFields: ['dest', 'destCurrency'],
+      dest: 'ethereum:' + process.env.WYRE_ETH_WALLET,
+      lockFields: ['dest', 'destCurrency', 'email'],
       amount: 10,
+      email: user.email,
     };
 
     try {
@@ -63,8 +71,8 @@ export class WyreService {
       );
       return response.data;
     } catch (e) {
-      console.log(e.message);
-      return { message: e.message, status: 'error' };
+      console.log(e);
+      throw new HttpException('Request error', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -107,12 +115,11 @@ export class WyreService {
         transaction.amountDETF = transfer.destAmount / rate.buyRate;
 
         const saveTransaction = this.transactionRepo.save(transaction);
-        user.balance += transaction.amountDETF;
+        user.balance = Number(user.balance + transaction.amountDETF).toString();
         const saveUser = this.userRepo.save(user);
 
         await Promise.all([saveTransaction, saveUser]);
       }
-      //handle business logic transaction success
     }
   }
 }

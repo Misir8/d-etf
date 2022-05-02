@@ -40,8 +40,8 @@ export class User {
   @CreateDateColumn()
   resetPasswordExpire: Date;
 
-  @Column('decimal', { precision: 5, scale: 2, default: 0 })
-  balance: number;
+  @Column({ default: 0 })
+  balance: string;
 
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
