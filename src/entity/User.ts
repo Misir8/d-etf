@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail } from 'class-validator';
+import { Transaction } from './Transaction';
 
 @Entity({
   name: 'users',
@@ -38,7 +40,13 @@ export class User {
   @CreateDateColumn()
   resetPasswordExpire: Date;
 
-  async validatePassword(password: string): Promise<Boolean> {
+  @Column('decimal', { precision: 5, scale: 2, default: 0 })
+  balance: number;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.user)
+  transactions: Transaction[];
+
+  async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);
     return hash === this.password;
   }

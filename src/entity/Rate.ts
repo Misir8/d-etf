@@ -1,9 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
   name: 'rates',
@@ -19,5 +14,5 @@ export class Rate {
   sellRate: number;
 
   @Column({ default: false })
-  isActive: Boolean;
+  isActive: boolean;
 }
