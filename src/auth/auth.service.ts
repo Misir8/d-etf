@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -121,6 +119,7 @@ export class AuthService {
     const passwordToken = await this.createForgottenPasswordToken(user);
 
     await this.sendResetPassword(email, passwordToken.token);
+    return { message: 'Email successfully send' };
   }
 
   private async createForgottenPasswordToken(user: User) {
@@ -138,16 +137,20 @@ export class AuthService {
     return await this.passwordTokenRepo.save(passToken);
   }
   async sendResetPassword(email: string, token: string) {
-    return this.mailerService.sendMail({
-      to: email,
-      from: process.env.SMTP_MAIL,
-      subject: 'd-etf',
-      // template: 'resetPassword',
-      // context: {
-      //   temporaryPassword,
-      // },
-      html: `<p>${token}</p>`,
-    });
+    try {
+      return this.mailerService.sendMail({
+        to: email,
+        from: process.env.SMTP_MAIL,
+        subject: 'd-etf',
+        // template: 'resetPassword',
+        // context: {
+        //   temporaryPassword,
+        // },
+        html: `<p>${token}</p>`,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   async checkToken(checkTemporaryPasswordDto: CheckTokenDto) {
@@ -156,17 +159,19 @@ export class AuthService {
       .createQueryBuilder('user')
       .where('user.email = :email', { email })
       .getOne();
+    if (!user) {
+      throw new BadRequestException(`User with ${email} does not exist`);
+    }
     const passTokenDb = await this.passwordTokenRepo
       .createQueryBuilder('passwordToken')
       .where('passwordToken.userId = :userId', { userId: user.id })
       .andWhere('passwordToken.token = :token', { token })
       .getOne();
     if (!passTokenDb) {
-      throw new HttpException('invalid token', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(`Invalid token`);
     }
     const payload: JwtPayload = { username: user.username };
     const accessToken = this.jwtService.sign(payload);
-
     return {
       accessToken,
     };
@@ -179,10 +184,7 @@ export class AuthService {
       .where('user.id = :id', { id })
       .getOne();
     if (!user) {
-      throw new HttpException(
-        `User with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
-      );
+      throw new BadRequestException(`User with ${id} does not exist`);
     }
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(newPassword, user.salt);
