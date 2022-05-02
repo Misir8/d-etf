@@ -3,9 +3,9 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Post,
-  ValidationPipe,
-} from '@nestjs/common';
+  Post, Query,
+  ValidationPipe
+} from "@nestjs/common";
 import { AuthService } from './auth.service';
 import { AuthSignUpDto } from './dto/auth-sign-up.dto';
 import { GetUser } from './get-user.decorator';
@@ -99,7 +99,7 @@ export class AuthController {
     description: 'get user list',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Dont exist' })
-  getUsers(@Body() getUsersDto: GetUsersDto): Promise<ResponseUserDto[]> {
+  getUsers(@Query() getUsersDto: GetUsersDto): Promise<ResponseUserDto[]> {
     return this.authService.getUsers(getUsersDto);
   }
 }
