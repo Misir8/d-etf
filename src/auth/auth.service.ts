@@ -51,7 +51,7 @@ export class AuthService {
     }
   }
   // validate password
-  async validateUserPassword(authSignInDto: AuthSignInDto): Promise<string> {
+  async validateUserPassword(authSignInDto: AuthSignInDto) {
     const { username, password, email } = authSignInDto;
     if (username || email) {
       const user = await this.userRepo
@@ -59,7 +59,7 @@ export class AuthService {
         .where(`user.username = '${username}' OR user.email = '${email}'`)
         .getOne();
       if (user && (await user.validatePassword(password))) {
-        return user.username;
+        return { username: user.username, id: user.id };
       }
     } else {
       return null;
@@ -74,11 +74,11 @@ export class AuthService {
     return await this.userRepo.findOne({ where: { username } });
   }
   async signIn(authSignInDto: AuthSignInDto): Promise<{ accessToken: string }> {
-    const username = await this.validateUserPassword(authSignInDto);
+    const {username,id} = await this.validateUserPassword(authSignInDto);
     if (!username) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload: JwtPayload = { username };
+    const payload: JwtPayload = { username, id };
     const accessToken = this.jwtService.sign(payload);
     return { accessToken };
   }
@@ -170,7 +170,7 @@ export class AuthService {
     if (!passTokenDb) {
       throw new BadRequestException(`Invalid token`);
     }
-    const payload: JwtPayload = { username: user.username };
+    const payload: JwtPayload = { username: user.username,id:user.id };
     const accessToken = this.jwtService.sign(payload);
     return {
       accessToken,
