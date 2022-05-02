@@ -16,7 +16,7 @@ import { GetUsersDto } from './dto/get-users.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseDto } from '../shared/response.dto';
 import { AccessTokenResponseDto } from './dto/access-token-response.dto';
-import { User } from '../entity/User';
+import { ResponseUserDto } from './dto/response-user.dto';
 
 @ApiTags('api/users')
 @Controller('api/auth')
@@ -95,11 +95,11 @@ export class AuthController {
   @Get('/users')
   @ApiResponse({
     status: HttpStatus.OK,
-    type: User,
+    type: ResponseUserDto,
     description: 'get user list',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Dont exist' })
-  getUsers(@Body() getUsersDto: GetUsersDto): Promise<User[]> {
+  getUsers(@Body() getUsersDto: GetUsersDto): Promise<ResponseUserDto[]> {
     return this.authService.getUsers(getUsersDto);
   }
 }
