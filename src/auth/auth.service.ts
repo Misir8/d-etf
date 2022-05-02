@@ -15,7 +15,7 @@ import { PasswordToken } from '../entity/PasswordToken';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CheckTokenDto } from './dto/check-token.dto';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
-import { GetUsersDto } from './dto/Get-Users.dto';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @Injectable()
 export class AuthService {
