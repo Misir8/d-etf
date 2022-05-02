@@ -18,7 +18,7 @@ import { ResponseDto } from '../shared/response.dto';
 import { AccessTokenResponseDto } from './dto/access-token-response.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 
-@ApiTags('api/users')
+@ApiTags('api/auth')
 @Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
