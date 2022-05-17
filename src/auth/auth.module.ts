@@ -7,11 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PasswordToken } from '../entity/PasswordToken';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { Role } from '../entity/Role';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
     MailerModule,
-    TypeOrmModule.forFeature([User, PasswordToken]),
+    TypeOrmModule.forFeature([User, PasswordToken, Role]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'topSecret51',
@@ -21,6 +23,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

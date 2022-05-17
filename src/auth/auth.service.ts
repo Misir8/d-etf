@@ -16,10 +16,13 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { CheckTokenDto } from './dto/check-token.dto';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
 import { GetUsersDto } from './dto/get-users.dto';
+import { Role } from '../entity/Role';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     @InjectRepository(PasswordToken)
@@ -37,12 +40,27 @@ export class AuthService {
     if (dbUser) {
       throw new BadRequestException(`User with ${username} already exist`);
     }
+    const defaultRole = await this.roleRepository.findOne({
+      where: {
+        name: 'USER',
+      },
+    });
+    let resultRole;
+    if (!defaultRole) {
+      const newRole = new Role();
+      newRole.name = 'USER';
+      await this.roleRepository.save(newRole);
+      resultRole = newRole;
+    } else {
+      resultRole = defaultRole;
+    }
     const user = new User();
     user.username = username;
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
     user.email = email;
     user.phoneNumber = phoneNumber;
+    user.role = resultRole;
     try {
       await this.userRepo.save(user);
       return { message: 'User successfully added' };
