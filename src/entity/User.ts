@@ -2,12 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail } from 'class-validator';
 import { Transaction } from './Transaction';
+import { Role } from './Role';
 
 @Entity({
   name: 'users',
@@ -45,6 +48,14 @@ export class User {
 
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
+
+  @RelationId((user: User) => user.role)
+  roleId: number;
+
+  @ManyToOne(() => Role, (role) => role.users, {
+    nullable: true,
+  })
+  role: Role;
 
   async validatePassword(password: string): Promise<boolean> {
     const hash = await bcrypt.hash(password, this.salt);

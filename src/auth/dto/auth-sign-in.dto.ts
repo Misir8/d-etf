@@ -11,5 +11,4 @@ export class AuthSignInDto {
   @IsString()
   @ApiProperty()
   password: string;
-
 }

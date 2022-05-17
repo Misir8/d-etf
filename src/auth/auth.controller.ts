@@ -3,9 +3,10 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Post, Query,
-  ValidationPipe
-} from "@nestjs/common";
+  Post,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthSignUpDto } from './dto/auth-sign-up.dto';
 import { GetUser } from './get-user.decorator';
