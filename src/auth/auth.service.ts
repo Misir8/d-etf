@@ -61,6 +61,7 @@ export class AuthService {
     user.email = email;
     user.phoneNumber = phoneNumber;
     user.role = resultRole;
+
     try {
       await this.userRepo.save(user);
       return { message: 'User successfully added' };
